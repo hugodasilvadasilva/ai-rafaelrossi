@@ -86,11 +86,37 @@ class BlindSearch:
     '''
 
     def __init__(self, grapho: NoCostGrapho):
+        '''
+        # Description
+        
+        Initialize private properties and receive a grapho (environment) as parameters.
+
+        ## Parameters
+
+        `- grapho: NoCostGrapho` that represents the problem. For example, what you want is
+        a route from city A to city B, this grapho must have a all possible paths between those
+        two cities.
+        '''
         self.__grapho = grapho
         self.__paths = []
         self.__visiteds = []
 
-    def breadth_search(self, ini: str, end: str):
+    def breadth_search(self, ini: str, end: str)-> list:
+        '''
+        # Description
+
+        Searches from `ini` to `end` using breadth search, which
+        runs each level at a time.
+
+        ## Parameters
+        `- ini: str` having the name of initial state/origin
+        name/start node;
+        `- end: str` having the name of final state/destination
+        name/end node.
+        `- return: list` of state names/nodes that has the
+        path from the `ini` to `end`. If no path has been found
+        return empty list
+        '''
 
         # add initial state to paths
         self.__paths.append([ini])
@@ -124,11 +150,6 @@ class BlindSearch:
         
         # if path to final state has not been found, return empty list
         return []
-
-class BreadthSearch(BlindSearch):
-
-    def _get_next(self) -> list:
-        return super().__paths.pop(0)
 
 
 if __name__ == "__main__":
