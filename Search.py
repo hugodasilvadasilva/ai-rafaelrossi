@@ -100,8 +100,14 @@ class BlindSearch:
         self.__grapho = grapho
         self.__paths = []
         self.__visiteds = []
+    
+    def __next_on_the_line(self) -> list:
+        return self.__paths.pop(0)
 
-    def breadth_search(self, ini: str, end: str)-> list:
+    def __next_on_the_pipe(self) -> list:
+        return self.__paths.pop(-1)
+
+    def breadth_search(self, ini: str, end: str) -> list:
         '''
         # Description
 
@@ -118,12 +124,52 @@ class BlindSearch:
         return empty list
         '''
 
+        return self.__search(ini, end, self.__next_on_the_line)
+    
+    def depth_search(self, ini: str, end: str) -> list:
+        '''
+        # Description
+
+        Searches from `ini` to `end` using depth search, which
+        runs each breach at a time.
+
+        ## Parameters
+        `- ini: str` having the name of initial state/origin
+        name/start node;
+        `- end: str` having the name of final state/destination
+        name/end node.
+        `- return: list` of state names/nodes that has the
+        path from the `ini` to `end`. If no path has been found
+        return empty list
+        '''
+        return self.__search(ini, end, self.__next_on_the_pipe)
+
+    def __search(self, ini: str, end: str, next_method)-> list:
+        '''
+        # Desciption
+
+        Private method that implements the search algorithm, using
+        `next_method` param to manage the navigation througth 
+        neighbours.
+
+        ## Parameters
+        `- ini: str` having the name of initial state/origin
+        name/start node;
+        `- end: str` having the name of final state/destination
+        name/end node;
+        `- next_method: ' having a reference to the method that
+        must be used to get the next element to be analysed.
+        `- return: list` of state names/nodes that has the
+        path from the `ini` to `end`. If no path has been found
+        return empty list
+        '''
+
         # add initial state to paths
         self.__paths.append([ini])
 
         while self.__paths:
             # get next path to be analysed
-            path = self.__paths.pop(0)
+            path = next_method()
 
             # get last path's item
             item = path[-1]
@@ -157,6 +203,9 @@ if __name__ == "__main__":
     #Create grapho
     grapho = GraphoExamplesFactory().get_eg_goias_no_cost_grapho()
     blindsearch = BlindSearch(grapho)
-    path = blindsearch.breadth_search("Goiania", "CaldasNovas")
+    breadth_path = blindsearch.breadth_search("Goiania", "CaldasNovas")
 
-    print(f"Route from Goiania to CaldasNovas is: {path}")
+    print(f"Breadh route from Goiania to CaldasNovas is {breadth_path}")
+
+    depth_path = blindsearch.depth_search("Goiania", "CaldasNovas")
+    print(f"Depth Route from Goiania Goiania is {depth_path}")
