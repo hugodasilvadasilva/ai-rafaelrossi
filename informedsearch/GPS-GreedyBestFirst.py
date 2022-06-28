@@ -148,8 +148,50 @@ class GPSGreedyBestFirst:
             print(f"{route} added into fringe at index 0")
             print(f"New fringe is {self.__fringe}")
     
-    def add_routes_for_neighbours(self, route: Route, destination: City):
+    def get_neighbour_closer_to_destination(self, neighbours_ids: list, destination_id: str) -> tuple:
         '''
+        Select the neighbour that has the least distance to `destination_id`;
+        `- neighbours_id: list` of neighbours ids which distance to destination will be 
+        calculated and the least distante will be returned;
+        `- destination: str` having the id of destination city;
+        `- return: tuple (str, float)` where `str` is the neighbour's id that is closer to destinatination
+        and `float` is its distance.
+        '''
+
+        # loop througth neighbours id getting the one with the least 
+        # distance to destination
+        prev_neighbour_id = None
+        prev_neighbour_distance = -1
+        print(f"Selecting next city between {neighbours_ids} neighbours")
+
+        # loop througth all neighbours and every time one has the least distance its id 
+        # is stored to be returned
+        for neighbour_id in neighbours_ids:
+
+            # first check if the neighbour has already been visied
+            if neighbour_id in self.__visited:
+                print(f"Neighbour {neighbour_id} will not be analysed because is has already been visited")
+                continue
+
+            # if neighbour has never been visited, calculate it's distance to destination
+            neighbour_distance = Map.calc_cartesian_distance(neighbour_id, destination_id)
+
+            # if neighbour's distance to destination is the least untill now, its id is stored
+            # Also check if this is the first neighbour been analysed by verifying 
+            # if prev_neighbour_distance is -1
+            if neighbour_distance < prev_neighbour_distance or prev_neighbour_distance == -1:
+                prev_neighbour_id = neighbour_id
+                prev_neighbour_distance = neighbour_distance
+                print(f"For now, neighbour {neighbour_id} has been considered the closer to destination with a distance of {neighbour_distance}")
+
+        print(f"The next city selected between all neighbours is {neighbour_id}")
+        return neighbour_id, neighbour_distance
+        
+        
+
+    
+    '''def add_routes_for_neighbours(self, route: Route, destination: City):
+        
         Add into fringe a new route for all neighbour's of the last city's `route`.
         Destination must be informed so evaluation function (distance to destination)
         can be calculated.
@@ -157,7 +199,7 @@ class GPSGreedyBestFirst:
         ## Parameters
         `- route: Route` which last city's neighbours you wish to add new route
         `- destination: City` that search algorithm is trying to find a route to.
-        '''
+        
 
         list_of_neighbours_ids = Map.get_neighbours(route.last_city_id)
 
@@ -174,15 +216,15 @@ class GPSGreedyBestFirst:
 
             neighbour_route = Route(route.cities_ids + [neighbour_id], distance_from_last_city + route.cost, distance_to_destination)
 
-            self.add_route(neighbour_route)
+            self.add_route(neighbour_route)'''
 
     def search(self, origin: City, destination: City) -> Route:
 
         print(f"Starting to search a route from {origin} to {destination}")
 
-        # create a route from origin to origin and add to fringe
-        distance_to_destination = Map.calc_cartesian_distance(origin.value.id, destination.value.id)
-        ini_route = Route([origin.value.id], 0, distance_to_destination)
+        # create a route from origin to destination and add to fringe
+        distance_to_destination = Map.calc_cartesian_distance(origin.id, destination.id)
+        ini_route = Route([origin.id], 0, distance_to_destination)
 
         self.add_route(ini_route)
 
@@ -194,7 +236,7 @@ class GPSGreedyBestFirst:
             print(f"Analysing {curr_route}")
 
             # check if it is destination
-            if curr_route.last_city_id == destination.value.id:
+            if curr_route.last_city_id == destination.id:
                 print(f"Route to destination found by using {curr_route}")
                 return curr_route
             
@@ -202,8 +244,15 @@ class GPSGreedyBestFirst:
             self.__visited.append(curr_route.last_city_id)
             print(f"{curr_route.last_city_id} added to visited cities")
 
-            # add fringe's routes to line
-            self.add_routes_for_neighbours(route=curr_route, destination=destination)
+            # add route for closer neighbour to line (fringe)
+            neighbours_ids = Map.get_neighbours(curr_route.last_city_id)
+            next_city_id, next_city_distance_to_destination = self.get_neighbour_closer_to_destination(neighbours_ids=neighbours_ids, destination_id=destination.id)
+
+            next_route_cities_id = curr_route.cities_ids + [next_city_id]
+            next_route_cost = curr_route.cost + Map.calc_cartesian_distance(curr_route.last_city_id, next_city_id)
+            next_route_evaluation = next_city_distance_to_destination
+
+            self.add_route(Route(cities_ids=next_route_cities_id, cost=next_route_cost, evaluation=next_route_evaluation))
         
         else:
             print(f"No route found from {origin} to {destination}")
@@ -214,9 +263,9 @@ if __name__ == "__main__":
     searcher = GPSGreedyBestFirst(Map)
 
     print("############################ SEARCH 1")
-    route = searcher.search(Map.Goiania, Map.Goiania)
+    route = searcher.search(Map.Goiania.value, Map.Goiania.value)
     print("############################ SEARCH 2")
-    route2 = searcher.search(Map.Goiania, Map.BelaVista)
+    route2 = searcher.search(Map.Goiania.value, Map.BelaVista.value)
     print("############################ SEARCH 3")
-    route3 = searcher.search(Map.Goiania, Map.CaldasNovas)
+    route3 = searcher.search(Map.Goiania.value, Map.CaldasNovas.value)
 
