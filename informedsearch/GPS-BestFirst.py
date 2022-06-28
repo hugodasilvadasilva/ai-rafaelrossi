@@ -1,9 +1,12 @@
+
 '''
-This block of code implements a GPS to find a route between 2 cities by using Greedy Best First algorithm,
+This block of code implements a GPS to find a route between 2 cities by using Best First algorithm,
 which uses the least estimated distance to destination to choose the next node to be analysed.
-At Search 4, there is a example where this algorithm fails to find a solution, as closer city to destination
-has no route to there.
-This problem is solved by using BestFirst.
+Its main difference from Greedy Best First is that this one stores into fringe all possible routes 
+for each neighbour, while Greedy Best First only stores one route which is the one that is been
+used to reach destination.
+By storing all neighbours routes into fringe, this algorithm will always find a solution, if it
+existes.
 '''
 
 import enum
@@ -84,7 +87,7 @@ class Map(enum.Enum):
     Hidrolandia = City("Hidrolandia", -16.97, -49.22, ["Goiania", "ProfJamil", "BelaVista"])
     BelaVista = City("BelaVista", -16.97, -48.97, ["Goiania", "Hidrolandia", "Piracanjuba", "Cristianopolis"])
     ProfJamil = City("ProfJamil", -17.25, -49.25, ["Hidrolandia", "Morrinhos", "Piracanjuba"])
-    Cristianopolis = City("Cristianopolis", -17.19, -48.73, ["BelaVista", "Piracanjuba", "CaldasNovas"])
+    Cristianopolis = City("Cristianopolis", -17.19, -48.70, ["BelaVista", "Piracanjuba", "CaldasNovas"])
     Piracanjuba = City("Piracanjuba", -17.30, -49.02, ["BelaVista", "ProfJamil", "CaldasNovas", "Cristianopolis", "Formiga"])
     Formiga = City("Formiga", -17.65, -49.08, ["Piracanjuba"])
     Morrinhos = City("Morrinhos", -17.73, -49.12, ["ProfJamil", "CaldasNovas"])
@@ -172,52 +175,42 @@ class GPSGreedyBestFirst:
         for index, curr_route in enumerate(self.__fringe):
             if curr_route.heuristic < route.heuristic:
                 self.__fringe.insert(index, route)
-                logging.debug(f"{route} added into fringe at index {index}")
+                logging.debug(f"Route {route.cities_ids} added into fringe at index {index}")
                 logging.debug(f"New fringe is {self.__fringe}")
                 break
         else:
             self.__fringe.append(route)
-            logging.debug(f"{route} added into fringe at index 0")
+            logging.debug(f"Route {route.cities_ids} added into fringe at index 0")
             logging.debug(f"New fringe is {self.__fringe}")
+
     
-    def get_neighbour_closer_to_destination(self, neighbours_ids: list, destination_id: str) -> tuple:
+    def add_routes_for_neighbours(self, route: Route, destination: City):
+        
+        '''Add into fringe a new route for all neighbour's of the last city's `route`.
+        Destination must be informed so evaluation function (distance to destination)
+        can be calculated.
+
+        ## Parameters
+        `- route: Route` which last city's neighbours you wish to add new route
+        `- destination: City` that search algorithm is trying to find a route to.
         '''
-        Select the neighbour that has the least distance to `destination_id`;
-        `- neighbours_id: list` of neighbours ids which distance to destination will be 
-        calculated and the least distante will be returned;
-        `- destination: str` having the id of destination city;
-        `- return: tuple (str, float)` where `str` is the neighbour's id that is closer to destinatination
-        and `float` is its distance.
-        '''
 
-        # loop througth neighbours id getting the one with the least 
-        # distance to destination
-        selected_neighbour_id = None
-        selected_neighbour_distance = -1
-        logging.info(f"Selecting closer city to destination between {neighbours_ids} neighbours")
+        list_of_neighbours_ids = Map.get_neighbours(route.last_city_id)
 
-        # loop througth all neighbours and every time one has the least distance its id 
-        # is stored to be returned
-        for neighbour_id in neighbours_ids:
+        for neighbour_id in list_of_neighbours_ids:
 
-            # first check if the neighbour has already been visied
+            # check if neighbour has already been visited
             if neighbour_id in self.__visited:
-                logging.debug(f"Neighbour {neighbour_id} will not be analysed because is has already been visited")
+                logging.debug(f"No route will be add to {neighbour_id} as it has already been visited")
                 continue
 
-            # if neighbour has never been visited, calculate it's distance to destination
-            neighbour_distance = Map.calc_cartesian_distance(neighbour_id, destination_id)
+            distance_from_last_city = Map.calc_cartesian_distance(route.last_city_id, neighbour_id)
+            distance_to_destination = Map.calc_cartesian_distance(destination.id, neighbour_id)
 
-            # if neighbour's distance to destination is the least untill now, its id is stored
-            # Also check if this is the first neighbour been analysed by verifying 
-            # if prev_neighbour_distance is -1
-            if neighbour_distance < selected_neighbour_distance or selected_neighbour_distance == -1:
-                selected_neighbour_id = neighbour_id
-                selected_neighbour_distance = neighbour_distance
-                logging.debug(f"For now, neighbour {neighbour_id} has been considered the closer to destination with a distance of {neighbour_distance}")
 
-        logging.info(f"The next city selected between all neighbours is {selected_neighbour_id}")
-        return selected_neighbour_id, selected_neighbour_distance
+            neighbour_route = Route(route.cities_ids + [neighbour_id], distance_from_last_city + route.cost, distance_to_destination)
+
+            self.add_route(neighbour_route)
 
     def search(self, origin: City, destination: City) -> Route:
 
@@ -245,21 +238,9 @@ class GPSGreedyBestFirst:
             self.__visited.append(curr_route.last_city_id)
             logging.debug(f"{curr_route.last_city_id} added to visited cities")
 
-            # add route for closer neighbour to line (fringe)
-            neighbours_ids = Map.get_neighbours(curr_route.last_city_id)
-            next_city_id, next_city_distance_to_destination = self.get_neighbour_closer_to_destination(neighbours_ids=neighbours_ids, destination_id=destination.id)
+            # create new routes for neighbours
+            self.add_routes_for_neighbours(route=curr_route, destination=destination)
 
-            # check if next city has been found
-            if next_city_id == None:
-                logging.info(f"No route found from {origin} to {destination}")
-                return None
-
-            next_route_cities_id = curr_route.cities_ids + [next_city_id]
-            next_route_cost = curr_route.cost + Map.calc_cartesian_distance(curr_route.last_city_id, next_city_id)
-            next_route_evaluation = next_city_distance_to_destination
-
-            self.add_route(Route(cities_ids=next_route_cities_id, cost=next_route_cost, evaluation=next_route_evaluation))
-        
         else:
             logging.info(f"No route found from {origin} to {destination}")
             return None
@@ -269,11 +250,19 @@ if __name__ == "__main__":
     searcher = GPSGreedyBestFirst(Map)
 
     print("############################ SEARCH 1")
+    print("In this search origin and destination are the same")
+    print("############################")
     route = searcher.search(Map.Goiania.value, Map.Goiania.value)
     print("############################ SEARCH 2")
+    print("This search destination is a origin's neighbours")
+    print("############################")
     route2 = searcher.search(Map.Goiania.value, Map.BelaVista.value)
     print("############################ SEARCH 3")
+    print("This is common search")
+    print("############################")
     route3 = searcher.search(Map.Goiania.value, Map.CaldasNovas.value)
     print("############################ SEARCH 4")
+    print("this is a search where closer city has no route to destination")
+    print("############################")
     route3 = searcher.search(Map.Piracanjuba.value, Map.Morrinhos.value)
 
