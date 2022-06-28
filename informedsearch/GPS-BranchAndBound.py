@@ -35,7 +35,7 @@ class Map(enum.Enum):
     Cristianopolis = City("Cristianopolis", -17.19, -48.70, ["BelaVista", "Piracanjuba", "CaldasNovas"])
     Piracanjuba = City("Piracanjuba", -17.30, -49.03, ["BelaVista", "ProfJamil", "Morrinhos", "CaldasNovas", "Cristianopolis"])
     Morrinhos = City("Morrinhos", -17.73, -49.12, ["ProfJamil", "CaldasNovas"])
-    CaldasNovas = City("CaldasNovas", -17.74, 48.62, ["Cristianopolis", "Piracanjuba", "Morrinhos"])
+    CaldasNovas = City("CaldasNovas", -17.74, -48.62, ["Cristianopolis", "Piracanjuba", "Morrinhos"])
 
     def get_neighbours(id: str)-> list:
         '''

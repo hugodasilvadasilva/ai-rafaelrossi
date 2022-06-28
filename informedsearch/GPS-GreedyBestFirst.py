@@ -53,10 +53,10 @@ class Map(enum.Enum):
     Hidrolandia = City("Hidrolandia", -16.97, -49.22, ["Goiania", "ProfJamil", "BelaVista"])
     BelaVista = City("BelaVista", -16.97, -48.97, ["Goiania", "Hidrolandia", "Piracanjuba", "Cristianopolis"])
     ProfJamil = City("ProfJamil", -17.25, -49.25, ["Hidrolandia", "Morrinhos", "Piracanjuba"])
-    Cristianopolis = City("Cristianopolis", -17.19, -48.70, ["BelaVista", "Piracanjuba", "CaldasNovas"])
-    Piracanjuba = City("Piracanjuba", -17.30, -49.03, ["BelaVista", "ProfJamil", "Morrinhos", "CaldasNovas", "Cristianopolis"])
+    Cristianopolis = City("Cristianopolis", -17.19, -48.73, ["BelaVista", "Piracanjuba", "CaldasNovas"])
+    Piracanjuba = City("Piracanjuba", -17.30, -49.02, ["BelaVista", "ProfJamil", "Morrinhos", "CaldasNovas", "Cristianopolis"])
     Morrinhos = City("Morrinhos", -17.73, -49.12, ["ProfJamil", "CaldasNovas"])
-    CaldasNovas = City("CaldasNovas", -17.74, 48.62, ["Cristianopolis", "Piracanjuba", "Morrinhos"])
+    CaldasNovas = City("CaldasNovas", -17.74, -48.62, ["Cristianopolis", "Piracanjuba", "Morrinhos"])
 
     def get_neighbours(id: str)-> list:
         '''
@@ -186,37 +186,6 @@ class GPSGreedyBestFirst:
 
         print(f"The next city selected between all neighbours is {neighbour_id}")
         return neighbour_id, neighbour_distance
-        
-        
-
-    
-    '''def add_routes_for_neighbours(self, route: Route, destination: City):
-        
-        Add into fringe a new route for all neighbour's of the last city's `route`.
-        Destination must be informed so evaluation function (distance to destination)
-        can be calculated.
-
-        ## Parameters
-        `- route: Route` which last city's neighbours you wish to add new route
-        `- destination: City` that search algorithm is trying to find a route to.
-        
-
-        list_of_neighbours_ids = Map.get_neighbours(route.last_city_id)
-
-        for neighbour_id in list_of_neighbours_ids:
-
-            # check if neighbour has already been visited
-            if neighbour_id in self.__visited:
-                print(f"No route will be add to {neighbour_id} as it has already been visited")
-                continue
-
-            distance_from_last_city = Map.calc_cartesian_distance(route.last_city_id, neighbour_id)
-            distance_to_destination = Map.calc_cartesian_distance(destination.value.id, neighbour_id)
-
-
-            neighbour_route = Route(route.cities_ids + [neighbour_id], distance_from_last_city + route.cost, distance_to_destination)
-
-            self.add_route(neighbour_route)'''
 
     def search(self, origin: City, destination: City) -> Route:
 
