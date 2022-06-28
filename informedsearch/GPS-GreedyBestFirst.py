@@ -54,7 +54,8 @@ class Map(enum.Enum):
     BelaVista = City("BelaVista", -16.97, -48.97, ["Goiania", "Hidrolandia", "Piracanjuba", "Cristianopolis"])
     ProfJamil = City("ProfJamil", -17.25, -49.25, ["Hidrolandia", "Morrinhos", "Piracanjuba"])
     Cristianopolis = City("Cristianopolis", -17.19, -48.73, ["BelaVista", "Piracanjuba", "CaldasNovas"])
-    Piracanjuba = City("Piracanjuba", -17.30, -49.02, ["BelaVista", "ProfJamil", "Morrinhos", "CaldasNovas", "Cristianopolis"])
+    Piracanjuba = City("Piracanjuba", -17.30, -49.02, ["BelaVista", "ProfJamil", "CaldasNovas", "Cristianopolis", "Formiga"])
+    Formiga = City("Formiga", -17.65, -49.08, ["Piracanjuba"])
     Morrinhos = City("Morrinhos", -17.73, -49.12, ["ProfJamil", "CaldasNovas"])
     CaldasNovas = City("CaldasNovas", -17.74, -48.62, ["Cristianopolis", "Piracanjuba", "Morrinhos"])
 
@@ -160,8 +161,8 @@ class GPSGreedyBestFirst:
 
         # loop througth neighbours id getting the one with the least 
         # distance to destination
-        prev_neighbour_id = None
-        prev_neighbour_distance = -1
+        selected_neighbour_id = None
+        selected_neighbour_distance = -1
         print(f"Selecting next city between {neighbours_ids} neighbours")
 
         # loop througth all neighbours and every time one has the least distance its id 
@@ -179,13 +180,13 @@ class GPSGreedyBestFirst:
             # if neighbour's distance to destination is the least untill now, its id is stored
             # Also check if this is the first neighbour been analysed by verifying 
             # if prev_neighbour_distance is -1
-            if neighbour_distance < prev_neighbour_distance or prev_neighbour_distance == -1:
-                prev_neighbour_id = neighbour_id
-                prev_neighbour_distance = neighbour_distance
+            if neighbour_distance < selected_neighbour_distance or selected_neighbour_distance == -1:
+                selected_neighbour_id = neighbour_id
+                selected_neighbour_distance = neighbour_distance
                 print(f"For now, neighbour {neighbour_id} has been considered the closer to destination with a distance of {neighbour_distance}")
 
-        print(f"The next city selected between all neighbours is {neighbour_id}")
-        return neighbour_id, neighbour_distance
+        print(f"The next city selected between all neighbours is {selected_neighbour_id}")
+        return selected_neighbour_id, selected_neighbour_distance
 
     def search(self, origin: City, destination: City) -> Route:
 
@@ -217,6 +218,11 @@ class GPSGreedyBestFirst:
             neighbours_ids = Map.get_neighbours(curr_route.last_city_id)
             next_city_id, next_city_distance_to_destination = self.get_neighbour_closer_to_destination(neighbours_ids=neighbours_ids, destination_id=destination.id)
 
+            # check if next city has been found
+            if next_city_id == None:
+                print(f"No route found from {origin} to {destination}")
+                return None
+
             next_route_cities_id = curr_route.cities_ids + [next_city_id]
             next_route_cost = curr_route.cost + Map.calc_cartesian_distance(curr_route.last_city_id, next_city_id)
             next_route_evaluation = next_city_distance_to_destination
@@ -237,4 +243,6 @@ if __name__ == "__main__":
     route2 = searcher.search(Map.Goiania.value, Map.BelaVista.value)
     print("############################ SEARCH 3")
     route3 = searcher.search(Map.Goiania.value, Map.CaldasNovas.value)
+    print("############################ SEARCH 4")
+    route3 = searcher.search(Map.Piracanjuba.value, Map.Morrinhos.value)
 
