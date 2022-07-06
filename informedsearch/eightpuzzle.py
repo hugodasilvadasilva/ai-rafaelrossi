@@ -1,16 +1,11 @@
 '''
-This block of code implements a GPS to find a route between 2 cities by using Greedy Best First algorithm,
-which uses the least estimated distance to destination to choose the next node to be analysed.
-At Search 4, there is a example where this algorithm fails to find a solution, as closer city to destination
-has no route to there.
-This problem is solved by using BestFirst.
+This block of code implements a 8 Numbers Puzzle and try to find the 
+solution by using the Greedy Best First Algorithm.
 '''
 
 import enum
-from os import sched_rr_get_interval
 import unittest
 import logging
-from functools import reduce
 
 """
 Description
@@ -31,8 +26,10 @@ values:
 """
 level = logging.INFO
 
+# Set the log output format
 logging.basicConfig(format="%(asctime)s # At %(funcName)s # Line %(lineno)d # %(message)s", level=level, datefmt='%d/%m/%Y %I:%M:%S %p')
 
+# Test if log level is working properly
 logging.debug("Log de debug registrado")
 logging.info("Log de info registrado")
 logging.warning("Log de warning registrado")
@@ -56,7 +53,7 @@ class Strategy:
         return f"Strategy: states = {self.__states}; cost value = {self.cost_value}; heuristic value = {self.heuristic_value}; evaluation value = {self.evaluation_value}"
     
     def summary(self) -> str:
-        return f"Strategy: current_state={self.states[-1]}; cost value = {self.cost_value}; heuristic value = {self.heuristic_value}; evaluation value = {self.evaluation_value}"
+        return f"Strategy Summary:\n current_state={self.states[-1]};\n number of steps = {len(self.states)};\n cost value = {self.cost_value};\n heuristic value = {self.heuristic_value};\n evaluation value = {self.evaluation_value}"
 
     def copy(self):
         logging.debug(f"Creating new Strategy from {self}")
@@ -98,7 +95,7 @@ class Strategy:
 
 class EightPuzzle:
     '''
-    This class represents a 8 puzzle board.
+    This class implements the algorithm to solve a Eight Puzzle problem
     '''
 
     def __init__(self, list_of_numbers: list):
@@ -113,7 +110,7 @@ class EightPuzzle:
         #Stores all tried states to solve the problme
         self.__tried = []
 
-        # stores moves to be tried
+        # stores strategies to be tried
         self.__fringe = []
 
     def __repr__(self) -> str:
@@ -121,10 +118,12 @@ class EightPuzzle:
 
     def copy_board(board: list) -> list:
         '''
-        This method creates a copy) of a board, in other words, another object having
-        the same list of items (integers). For some reason, the method list.copy()
-        doesn't work properly for a list of lists, so this method was created to solve
-        this problem.
+        This method creates a copy of a board, in other words, another object having
+        the same list of items (integers) as the method copy() doesn't satisfy the clone
+        needed into this problem, once by using copy at a board variable, it creates a copy
+        of the list, but the sublist is kept as reference which means that if you change one
+        value at a origin variable sublist it will be reflected at all copied varible sublists.
+        So this method was created to solve this problem.
         '''
         new_board = [sublist.copy() for sublist in board]
         return new_board
@@ -142,7 +141,6 @@ class EightPuzzle:
         '''
 
         logging.debug(f"Finding position of number {number} at board {board}")
-        # TODO: erro aqui
         x = -1
         for line in board:
             x += 1
@@ -264,7 +262,7 @@ class EightPuzzle:
 
     def get_surroundings(board: list) -> list:
         '''
-        Returns a list of boards where each one of them is a zero
+        Return a list of boards where each one of them is a zero
         moved onto certain direction.
         The list of boards will follow this order or zero moved
         directions: up, down, left, right'''
@@ -280,9 +278,9 @@ class EightPuzzle:
 
 
 
-    def solve_using_a_star(self):
+    def solve_by_using_greedy_best_first(self) -> Strategy:
 
-        logging.info(f"Starting Eight Puzzle solution by using A-Star algorithm")
+        logging.info(f"Starting Eight Puzzle solution by using the Greedy Best First algorithm")
         
         # add current state to fringe
         curr_state = EightPuzzle.copy_board(self.__initial_state)
@@ -297,13 +295,14 @@ class EightPuzzle:
 
             # get next strategy to be tried
             move_num += 1
-            logging.debug(f"\nCurrent Fringe State\n {[s.summary() for s in self.__fringe]}")
+            logging.debug(f"\nCurrent Fringe Strategies\n {[s.summary() for s in self.__fringe]}")
 
             curr_strategy = self.__fringe.pop(-1)
             logging.debug(f"\nStrategy picked={curr_strategy.summary()}")
 
-            logging.info(f"### Move {move_num} ###")
-            [print(l) for l in curr_strategy.states[-1]]
+            logging.info(f"### Analysing {move_num} ###")
+            #[print(l) for l in curr_strategy.states[-1]]
+            logging.info(f"{curr_strategy.summary()}")
 
             # check if is solution
             logging.debug(f"Checking if {curr_strategy.states[-1]} is equal to {self.__solution}")
@@ -328,7 +327,11 @@ class EightPuzzle:
                 self.add_strategy_to_fringe(new_strategy)
 
 if __name__ == "__main__":
-    puzzle = EightPuzzle([1,3,2,6,4,5,8,7,0])
-    strategy = puzzle.solve_using_a_star()
+    #puzzle = EightPuzzle([1, 0, 3, 4, 2, 7, 6, 8, 5])
+    puzzle = EightPuzzle([8,7,6,5,4,3,2,1,0])
+    strategy = puzzle.solve_by_using_greedy_best_first()
 
-    print(f"Puzzle solved")
+    print(f"Puzzle solved by using the following steps...")
+    for step, state in enumerate(strategy.states):
+        print(f"Step {step} = {state}")
+    
