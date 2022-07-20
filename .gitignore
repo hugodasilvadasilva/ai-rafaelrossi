@@ -5,3 +5,6 @@ lib64
 pyvenv.cfg
 DependencyInjectionTest.py
 EnumOps.py
+adversarialsearch/__pycache__/
+adversarialsearch/tictactoe/__pycache__/
+informedsearch/__pycache__/
