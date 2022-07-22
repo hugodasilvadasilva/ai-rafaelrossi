@@ -1,9 +1,6 @@
 import copy
-import setlog
 import logging
 from tictactoeboard import TicTacToeBoard as Board
-
-setlog.set_log(logging.DEBUG)
 
 class TicTacToeAction:
     '''

@@ -162,4 +162,3 @@ class Test_Game_final_result(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-    #print(TicTacToe_utils.string_board_all_X())

@@ -9,48 +9,7 @@ from tictactoeboard import TicTacToeBoard as Board
 from tictactoeaction import TicTacToeAction as Action
 from tictactoegame import TicTacToeGame as Game
 
-'''class TicTacToe_utils():
-
-    def string_list_all_X() -> list:
-        return ['X','X','X','X','X','X','X','X','X']
-
-    def string_list_lasting_one() -> list:
-        
-        Returns a list with only one cel empty/available.
-        The list content is: ['X','X','X','X','X','X','X','X','-']
-        
-        return ['X','X','X','X','X','X','X','X','-']
-    
-    def string_list_X_Zero_Blank() -> list:
-        
-        Returns a list as ['X', '0', '-','X', '0', '-','X', '0', '-']
-        
-        return ['X', '0', '-','X', '0', '-','X', '0', '-']
-
-    def board_cols_X_Zero_Blank() -> Board:
-        
-        Returns a `Board` where first column is 'X', the second is '0'
-        and the third is '-', as bellow:\n
-        X|0|-\n
-        X|0|-\n
-        X|0|-\n
-        
-        board = Board(TicTacToe_utils.string_list_X_Zero_Blank())
-        return board
-    
-    def string_board_all_X():
-        
-        Returns a string representing a board as:\n
-        X|X|X\n
-        X|X|X\n
-        X|X|X
-        
-        return "X|X|X\nX|X|X\nX|X|X"
-
-    def tictactoe_all_X():
-        ttt = Board(TicTacToe_utils.string_list_all_X())
-    
-'''
+setlog.set_log(logging.INFO)
 
 class Test_Player_actions(unittest.TestCase):
 
@@ -59,10 +18,10 @@ class Test_Player_actions(unittest.TestCase):
         This method checks TictactoePlayer.actions(...), returns a empty
         list when board is fully marked
         '''
+        logging.info(f'Testing if Player.actions() returns empty if board is even')
 
-        player = Player('X')
         board = Board(['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'])
-        actions = player.actions(board)
+        actions = Player.actions(board, 'X')
 
         expected_actions = []
 
@@ -75,9 +34,10 @@ class Test_Player_actions(unittest.TestCase):
         returns one action when only one cell is available to be marked.
         '''
 
+        logging.info(f"Checking if Player.action() returns one action")
+
         board = Board(['X', '0', '0', 'X', '0', '0', '-', 'X', 'X'])
-        player = Player('X')
-        actions = player.actions(board)
+        actions = Player.actions(board, 'X')
 
         expected_board = Board(['X', '0', '0', 'X', '0', '0', 'X', 'X', 'X'])        
         expected_actions = [Action(expected_board, (2, 0), None)]
@@ -89,10 +49,11 @@ class Test_Player_actions(unittest.TestCase):
         This method checks if TicTacToePlayer.actions(...), returns a list
         having three actions when only two cels are available.
         '''
+
+        logging.debug(f"Checking if Player.action() returns three actions")
         
         board = Board(['X', '0', '-', 'X', '-', '0', '-', 'X', '0'])
-        player = Player('X')
-        actions = player.actions(board)
+        actions = Player.actions(board, 'X')
 
         b1 = Board(['X', '0', 'X', 'X', '-', '0', '-', 'X', '0'])
         a1 = Action(b1, (0,2), None)
@@ -106,251 +67,96 @@ class Test_Player_actions(unittest.TestCase):
 
         [self.assertEqual(expected_actions[i], actions[i]) for i in range(2)]
 
-class Test_player_get_down_up_diagonnal(unittest.TestCase):
+class Test_player_utility(unittest.TestCase):
 
-    def test_get_empty_diagonal(self):
+    def test_not_terminated(self):
         '''
-        This method checks if the method Tictactoeplayer.get_down_up_diagonnal()
-        is returning the diagonal properly
-        '''
-
-        template = ['X', '0', '-', 'X', '-', '0', '-', '0', 'X']
-
-        board = Board(template)
-        diagonal = board.get_down_up_diagonnal()
-
-        expected_diagonal = ['-', '-', '-']
-
-        self.assertListEqual(expected_diagonal, diagonal)
-
-class Test_player_terminate(unittest.TestCase):
-    
-    def test_blank(self):
-        '''
-        This method checks if method terminated() returns false if board
-        is blank
-        '''
-        marks = ['-', '-', '-', '-', '-', '-', '-', '-', '-']
-
-        board = Board(marks)
-        terminated = Game.terminated(board)
-
-        self.assertEqual(False, terminated)
-    
-    def test_lasting_one(self):
-        '''
-        This method checks if Player.terminate() returns false if board
-        last one and no player has won
-        '''
-
-        marks = ['X', '0', '0', '0', 'X', 'X', '0', 'X', '-']
-
-        board = Board(marks)
-        terminated = Game.terminated(board)
-
-        self.assertEqual(False, terminated)
-    
-    def test_first_line_terminated(self):
-        '''
-        This method checks if Game.terminated() method returns true if board
-        is terminated with X on first line
-        '''
-
-        marks = ['X', 'X', 'X', '0', '-', '0', '0', '-', '-']
-
-        board = Board(marks)
-        terminated = Game.terminated(board)
-
-        self.assertEqual(True, terminated)
-
-    def est_second_column_terminated(self):
-        '''
-        This method checks if terminated() method returns true if board
-        is terminated with X on Second  Column
-        '''
-
-        marks = ['-', 'X', 'X', '0', 'X', '0', '0', 'X', '-']
-
-        board = Board(marks)
-        terminated = Player.terminated(board)
-
-        self.assertEqual(True, terminated)
-
-    def est_up_down_diag_terminated(self):
-        '''
-        This method checks if terminated() method returns true if board
-        is terminated with X on up-down-diagonal.
-        '''
-
-        marks = ['X', '-', '0', '-', 'X', '0', '-', '0', 'X']
-
-        board = Board(marks)
-        terminated = Player.terminated(board)
-
-        self.assertEqual(True, terminated)
-
-    def est_down_up_diag_terminated(self):
-        '''
-        This method checks if terminated() method returns true if board
-        is terminated with 0 on down-up-diagonal
-        '''
-
-        marks = ['-', 'X', '0', '-', '0', 'X', '0', '-', 'X']
-
-        board = Board(marks)
-        terminated = Player.terminated(board)
-
-        self.assertEqual(True, terminated)
-
-class Test_player_final_result(unittest.TestCase):
-
-    def est_not_terminated(self):
-        '''
-        This method checks if TicTacToePlayer.current_result(board) method 
-        returns (None, None) if board is note terminated'''
-
-        marks = ['-', 'X', '0', 'X', '-', '0', 'X', '0', '-']
-        board = Board(marks)
-        curr_result = Player.current_result(board)
-
-        exp_result = (None, None)
-
-        self.assertTupleEqual(exp_result, curr_result)
-
-    def est_X_cross_col0(self):
-        '''
-        This method checks if TicTacToePlayer.current_result(board) method
-        returns (X, col1) if board is crossed by X at column 0
-        '''
-
-        marks = ['X', '-', '0', 'X', '0', '-', 'X', '0', '-']
-        board = Board(marks)
-        curr_result = Player.current_result(board)
-
-        exp_result = ('X', 'col0')
-
-        self.assertTupleEqual(exp_result, curr_result)
-
-    def est_0_cross_row1(self):
-        '''
-        This method checks if TicTacToePlayer.current_result(board) method
-        returns (0, row1) if board is crossed by 0 at column 1
-        '''
-
-        marks = ['-', '-', 'X', '0', '0', '0', 'X', '0', 'X']
-        board = Board(marks)
-        curr_result = Player.current_result(board)
-
-        exp_result = ('0', 'row1')
-
-        self.assertTupleEqual(exp_result, curr_result)
-
-    def est_X_cross_up_down_diag(self):
-        '''
-        This method checks if TicTacToePlayer.current_result(board) method
-        returns (X, updown) if board is crossed by X up-down-diagonal
-        '''
-
-        marks = ['X', '-', 'X', '-', 'X', '0', '0', '0', 'X']
-        board = Board(marks)
-        curr_result = Player.current_result(board)
-
-        exp_result = ('X', 'updown')
-
-        self.assertTupleEqual(exp_result, curr_result)
-
-    def est_0_cross_down_up_diag(self):
-        '''
-        This method checks if TicTacToePlayer.current_result(board) method
-        returns (0, downup) if board is crossed by 0 down-up-diagonal
-        '''
-
-        marks = ['X', '-', '0', '-', '0', 'X', '0', '-', 'X']
-        board = Board(marks)
-        curr_result = Player.current_result(board)
-
-        exp_result = ('0', 'downup')
-
-        self.assertTupleEqual(exp_result, curr_result)
-
-class Test_player_cost(unittest.TestCase):
-
-    def est_not_terminated(self):
-        '''
-        This method checks if TicTacToePlayer.cost(board) method returns
+        This method checks if TicTacToePlayer.utility(board) method returns
         None, when board is not terminated
         '''
 
+        logging.info("Checking if Player.calc_utility() returns empty if board is not terminated")
+
         marks = ['X', '-', '-', '0', 'X', '0', '-', 'X', '0']
         board = Board(marks)
-        calc_cost = Player.cost(board, 'X')
+        utility = Player.calc_utility(board, 'X')
 
         exp_cost = None
 
-        self.assertEqual(exp_cost, calc_cost)
+        self.assertEqual(exp_cost, utility)
 
-    def est_X_win(self):
+    def test_X_win(self):
         '''
-        This method checks if TicTacToePlayer.cost(board) method returns
+        This method checks if TicTacToePlayer.calc_utility(board) method returns
         1, when X wins.
         '''
 
+        logging.info(f"Checking if Player.calc_utility() returns 1 when player wins")
+
         marks = ['X', 'X', 'X', '0', 'X', '0', '-', '0', '0']
         board = Board(marks)
-        calc_cost = Player.cost(board, 'X')
+        utility = Player.calc_utility(board, 'X')
 
-        exp_cost = 1
+        exp_utility = 1
 
-        self.assertEqual(exp_cost, calc_cost)
+        self.assertEqual(exp_utility, utility)
 
-    def est_0_loose(self):
+    def test_0_loose(self):
         '''
-        This method checks if TicTacToePlayer.cost(board) method returns
+        This method checks if TicTacToePlayer.calc_utility(board) method returns
         1, when 0 loose.
         '''
 
+        logging.info(f"Checking if Player.calc_utility() returns -1 when player looses")
+
         marks = ['-', '0', '0', 'X', 'X', 'X', '-', '0', '0']
         board = Board(marks)
-        calc_cost = Player.cost(board, '0')
+        calc_utility = Player.calc_utility(board, '0')
 
         exp_cost = -1
 
-        self.assertEqual(exp_cost, calc_cost)
+        self.assertEqual(exp_cost, calc_utility)
 
-    def est_even(self):
+    def test_even(self):
         '''
-        This method checks if TicTacToePlayer.cost(board) method returns
+        This method checks if TicTacToePlayer.calc_utility(board) method returns
         0, when even.
         '''
 
+        logging.info(f"Checking if Player.calc_utility() returns 0 when game is even")
+
         marks = ['X', '0', '0', '0', 'X', 'X', 'X', '0', '0']
         board = Board(marks)
-        calc_cost = Player.cost(board, '0')
+        calc_cost = Player.calc_utility(board, '0')
 
         exp_cost = 0
 
         self.assertEqual(exp_cost, calc_cost)
 
-class Test_tictactoe_max_value(unittest.TestCase):
+class Test_max_value(unittest.TestCase):
 
-    def est_terminated_win(self):
+    def test_terminated_win(self):
         '''
-        This method checks if TicTacToePlayer.max_value(board, player) method
-        returns correct action if `board` is terminated and X plawyer won.
+        This method checks if TicTacToePlayer.max_value(board) method
+        returns +1 if `board` is terminated and X player wins.
         '''
+
+        logging.info(f"Checking if Player.max_value() returns 1 when there is only one move and player wins")
 
         marks = ['X', 'X', 'X', '0', '0', '-', '0', 'X', '0']
         board = Board(marks)
-        action = Player.max_value(board, 'X')
-        exp_action = Action(board, (None, None), 'X')
+        max_value = Player.max_value(board, 'X')
+        exp_value = 1
 
-        self.assertEqual(exp_action, action)
+        self.assertEqual(exp_value, max_value)
 
-    def est_terminated_even(self):
+    def test_even(self):
         '''
         This method checks if TicTacToePlayer.max_value(board, player) method
-        returns the max value for a terminated board when game is even
+        returns the 0 for a terminated board when game is even
         '''
+
+        logging.info(f"Checking if Player.max_value() returns 0 when game is even")
         
         marks = ['X', '0', 'X', '0', '0', 'X', '0', 'X', '0']
         board = Board(marks)
@@ -360,29 +166,39 @@ class Test_tictactoe_max_value(unittest.TestCase):
 
         self.assertEqual(exp_value, max_value)
     
-    def est_max_between_even_win(self):
+    def test_max_between_even_win(self):
         '''
         This method checks if TicTacToePlayer.max_value(board, player) method
-        returns the max value for board where player X wins or even.
-        The board is:\n
+        returns the max value for state where subsequente moves are win or even.
+        As subsequente is the opponent's turn, for him is a choose between 
+        loose (-1) or even (0). In this case, max_value must return 0.
+        Current State:\n
         X|0|X\n
         0|X|X\n
          -| - |0\n
-         The following options are:\n
+        Opponent options are:\n
         X|0|X\n
         0|X|X\n
-        X| - |0\n\n
-        Then, X wins, or:
+        0| - |0\n\n
+        Then player marks:\n
         X|0|X\n
-        0|X|X\n
-         -|X|0\n
-         ...\n
-         X|0|X\n
         0|X|X\n
         0|X|0\n
-        Where the game even.
-        In this case, max_valu must return 1, which is the option where X wins
+        \n
+        The result is even(0), or opponent hits:\n        
+        X|0|X\n
+        0|X|X\n
+         -|0|0\n
+        Then player marks:\n
+        X|0|X\n
+        0|X|X\n
+        X|0|0\n
+        The result is X wins, 0 looses (-1).
+
+        In this case, max_value must return 0, which is the better option for opponent
         '''
+
+        logging.info(f"Checking if Player.max_value() returns 0 when there is 2 moves where player wins or even")
         
         marks = ['X', '0', 'X', '0', 'X', 'X', '-', '-', '0']
         board = Board(marks)
@@ -392,9 +208,25 @@ class Test_tictactoe_max_value(unittest.TestCase):
 
         self.assertEqual(exp_value, max_value)
 
-class Test_tictactoe_min_value(unittest.TestCase):
+    def test_player_win(self):
+        '''
+        This method checks if Player.max_value(...) returns 1 in case where
+        player always wins
+        '''
 
-    def est_terminated_loose(self):
+        logging.info(f"Checking if Player.max_value() returns 1 when there is 2 moves lasting and on both cases player wins")
+
+        board = Board(['0', 'X', 'X', 'X', 'X', '0', '-', '-', '0'])
+        max_value = Player.max_value(board, 'X')
+
+        exp_value = 1
+
+        logging.info(f"max_value={max_value}; expected_value={exp_value}")
+        self.assertEqual(exp_value, max_value)
+
+class Test_Player_min_value(unittest.TestCase):
+
+    def test_terminated_loose(self):
         '''
         This method checks if TicTacToePlayer.min_value(board, player) method
         returns the min value for a terminated board where player looses
@@ -408,7 +240,7 @@ class Test_tictactoe_min_value(unittest.TestCase):
 
         self.assertEqual(exp_value, min_value)
 
-    def est_terminated_even(self):
+    def test_terminated_even(self):
         '''
         This method checks if TicTacToePlayer.min_value(board, player) method
         returns the min value for a terminated board where the game even
@@ -421,67 +253,6 @@ class Test_tictactoe_min_value(unittest.TestCase):
         exp_value = 0
 
         self.assertEqual(exp_value, min_value)
-
-class Test_tictactoe_max_value(unittest.TestCase):
-
-    def est_terminated_win(self):
-        '''
-        This method checks if TicTacToePlayer.max_value(board, player) method
-        returns the max value for a terminated board where player wins
-        '''
-
-        marks = ['X', 'X', 'X', '0', '0', '-', '0', 'X', '0']
-        board = Board(marks)
-        max_value = Player.max_value(board, 'X')
-        exp_value = 1
-
-        self.assertEqual(exp_value, max_value)
-
-    def est_terminated_even(self):
-        '''
-        This method checks if TicTacToePlayer.max_value(board, player) method
-        returns the max value for a terminated board when game is even
-        '''
-        
-        marks = ['X', '0', 'X', '0', '0', 'X', '0', 'X', '0']
-        board = Board(marks)
-        max_value = Player.max_value(board, 'X')
-
-        exp_value = 0
-
-        self.assertEqual(exp_value, max_value)
-    
-    def est_max_between_even_win(self):
-        '''
-        This method checks if TicTacToePlayer.max_value(board, player) method
-        returns the max value for board where player X wins or even.
-        The board is:\n
-        X|0|X\n
-        0|X|X\n
-         -| - |0\n
-         The following options are:\n
-        X|0|X\n
-        0|X|X\n
-        X| - |0\n\n
-        Then, X wins, or:
-        X|0|X\n
-        0|X|X\n
-         -|X|0\n
-         ...\n
-         X|0|X\n
-        0|X|X\n
-        0|X|0\n
-        Where the game even.
-        In this case, max_valu must return 1, which is the option where X wins
-        '''
-        
-        marks = ['X', '0', 'X', '0', 'X', 'X', '-', '-', '0']
-        board = Board(marks)
-        max_value = Player.max_value(board, 'X')
-
-        exp_value = 1
-
-        self.assertEqual(exp_value, max_value)
 
 
 if __name__ == "__main__":

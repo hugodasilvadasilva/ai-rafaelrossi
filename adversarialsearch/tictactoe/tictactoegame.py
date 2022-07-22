@@ -1,8 +1,5 @@
-import setlog
 import logging
 from tictactoeboard import TicTacToeBoard as Board
-
-setlog.set_log(logging.DEBUG)
 
 class TicTacToeGame:
 
@@ -48,38 +45,48 @@ class TicTacToeGame:
 
             row = board.get_row(i)
             if row.count('X') == 3:
+                logging.debug(f"At board {board.as_one_line_list()} game is over and X wins by crossing row {str(i)}")
                 return ('X', 'row' + str(i))
 
             if row.count('0') == 3:
+                logging.debug(f"At board {board.as_one_line_list()} game is over and 0 wins by crossing row {str(i)}")
                 return ('0', 'row' + str(i))
 
             column = board.get_column(i)
             if column.count('X') == 3:
+                logging.debug(f"At board {board.as_one_line_list()} game is over and X wins by crossing col {str(i)}")
                 return ('X', 'col' + str(i))
             
             if column.count('0') == 3:
+                logging.debug(f"At board {board.as_one_line_list()} game is over and 0 wins by crossing col {str(i)}")
                 return ('0', 'col' + str(i))
         
         # Check if diagonals are all X or 0
         diag_up_down = board.get_up_down_diagonnal()
         if diag_up_down.count('X') == 3:
+            logging.debug(f"At board {board.as_one_line_list()} game is over and X wins by up-down-diagonal")
             return ('X', 'updown')
 
         if diag_up_down.count('0') == 3:
+            logging.debug(f"At board {board.as_one_line_list()} game is over and 0 wins by up-down-diagonal")
             return ('0', 'updown')
 
         diag_down_up = board.get_down_up_diagonnal()
         if diag_down_up.count('X') == 3:
+            logging.debug(f"At board {board.as_one_line_list()} game is over and X wins by down-up-diagonal")
             return ('X', 'downup')
         
         if diag_down_up.count('0') == 3:
+            logging.debug(f"At board {board.as_one_line_list()} game is over and 0 wins by up-down-diagonal")
             return ('0', 'downup')
 
         # Check if all board is full by searching '-' at each line
         for i in range(3):
             if board.get_row(i).count('-') > 0:
+                logging.debug(f"At board {board.as_one_line_list()} game is not over")
                 return (None, None)
-        
+
+        logging.debug(f"At board {board.as_one_line_list()} game is over by even")
         return ('-', '-')
 
     def terminated(board: Board):
