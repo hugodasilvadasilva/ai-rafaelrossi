@@ -16,8 +16,6 @@ class Test_Game_start(unittest.TestCase):
         only one move lasting
         '''
 
-        setlog.set_log(logging.WARNING)
-
         board_list = ['X', '0', 'X', '0', '0', 'X', 'X', '-', '0']
         game_over_board = Game.start(Board(board_list), Player('0'), Player('X') )
 
@@ -32,8 +30,6 @@ class Test_Game_start(unittest.TestCase):
         only one move to win
         '''
 
-        setlog.set_log(logging.WARNING)
-
         board_list = ['X', '0', 'X', '0', '0', 'X', '-', '-', '0']
         game_over_board = Game.start(Board(board_list), Player('0'), Player('X') )
 
@@ -47,8 +43,6 @@ class Test_Game_start(unittest.TestCase):
         This method checks how Game.start() returns when there is
         only two moves lasting and game will even
         '''
-
-        setlog.set_log(logging.WARNING)
 
         board_list = ['X', '0', 'X', '0', '0', 'X', '-', '-', '0']
         game_over_board = Game.start(Board(board_list), Player('X'), Player('0') )
@@ -65,8 +59,6 @@ class Test_Game_start(unittest.TestCase):
         so player will always win
         '''
 
-        setlog.set_log(logging.WARN)
-
         board_list = ['X', '0', 'X', '0', '-', '-', 'X', '-', '-']
         game_over = Game.start(Board(board_list), Player('0'), Player('X'))
 
@@ -77,12 +69,18 @@ class Test_Game_start(unittest.TestCase):
 
         self.assertListEqual(exp_list, game_over.as_one_line_list())
     
+    def minimax_x(self):
+        game_over = Game.start_x(Player('X'), Player('0'))
+    
     def test_run(self):
+
+        setlog.set_log(logging.WARN)
 
         #self.one_move_lasting()
         #self.one_move_to_win()
         #self.two_moves_even()
-        self.best_hit()
+        #self.best_hit()
+        self.minimax_x()
 
 if __name__ == "__main__":
     unittest.main()

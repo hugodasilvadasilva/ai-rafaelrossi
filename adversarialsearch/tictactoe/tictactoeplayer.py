@@ -149,3 +149,32 @@ class TicTacToePlayer:
         
         logging.debug(f"Best action for player {self.symbol} at board {board.as_one_line_list()} is {max_action}")
         return max_action
+    
+    def minimax_decision_faster(self, board: Board) -> Action:
+        '''
+        This method trigges the minimax algorithm in order to choose
+        the best action on `board`
+        
+        ## Parameters
+        `- board: Board` of current game state
+        `- return: Action` that best fits for Player
+        '''
+        
+        logging.debug(f"Starting minimax_decicion for palyer {self.symbol} at board {board.as_one_line_list()}")
+
+        actions = TicTacToePlayer.actions(board, self.symbol)
+
+        max_action = Action(board, ('-', '-'), -1000)
+
+        for action in actions:
+
+            action.utility = TicTacToePlayer.min_value(action.board, self.symbol)
+
+            if action.utility == 1:
+                return action
+
+            if action.utility > max_action.utility:
+                max_action = action
+        
+        logging.debug(f"Best action for player {self.symbol} at board {board.as_one_line_list()} is {max_action}")
+        return max_action

@@ -32,5 +32,31 @@ class TicTacToeGame:
         print(f"## Game Over. Player '{curr_state[0]}' is the winner!!! ##")
         
         return board
+    
+    def start_x(player1: Player, player2: Player):
+
+        print(f"## Starting new game ##")
+        print(f"Player 1 as {player1}")
+        print(f"Player 2 as {player2}")
+
+        player_turn = player1
+        board = Board(['-', '-', '-', '-', '-', '-', '-', '-', '-', ])
+        while not(board.terminated()):
+
+            action = player_turn.minimax_decision_faster(board)
+            row, col = action.row_col
+            board.set_cel(row, col, player_turn.symbol)
+            print(f"Player {player_turn.symbol} play at row {row}, col {col}")
+            print(board)
+            
+            if player_turn.symbol == player1.symbol:
+                player_turn = player2
+            else:
+                player_turn = player1
+        
+        curr_state = board.current_result()
+        print(f"## Game Over. Player '{curr_state[0]}' is the winner!!! ##")
+        
+        return board
         
             
