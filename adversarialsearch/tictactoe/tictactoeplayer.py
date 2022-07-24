@@ -1,13 +1,15 @@
 import logging
 from tictactoeboard import TicTacToeBoard as Board
 from tictactoeaction import TicTacToeAction as Action
-from tictactoegame import TicTacToeGame as Game
 
 
 class TicTacToePlayer:
 
     def __init__(self, symbol: str):
         self.__symbol = symbol
+
+    def __repr__(self) -> str:
+        return f"Player '{self.__symbol}'"
 
     @property
     def symbol(self) -> str:
@@ -35,6 +37,7 @@ class TicTacToePlayer:
                     states.append(new_action)
                     logging.debug(f"New {new_action} created for board {board.as_one_line_list()}")
         
+        logging.debug(f"{len(states)} states found for board {board.as_one_line_list()}")
         return states
     
     def calc_utility(board: Board, player: str) -> int:
@@ -52,7 +55,7 @@ class TicTacToePlayer:
         if player == opponent:
             opponent = '0'
 
-        curr_result = Game.current_result(board)
+        curr_result = board.current_result()
         
         if curr_result[0] == player:
             final_result = 1
@@ -78,7 +81,6 @@ class TicTacToePlayer:
 
         # if board is not terminated check subsequente actions
         actions = TicTacToePlayer.actions(board, player)
-        logging.debug(f"Retrieved {len(actions)} subsequent actions")
 
         max_value = -1000
 
@@ -110,8 +112,6 @@ class TicTacToePlayer:
             opponent = '0'
 
         actions = TicTacToePlayer.actions(board, opponent)
-        logging.debug(f"Retrieved {len(actions)} subsequent actions")
-
         min_value = 1000
 
         for action in actions:
@@ -123,3 +123,29 @@ class TicTacToePlayer:
                 logging.debug(f"New min_value set equals to {min_value}")
         
         return min_value
+    
+    def minimax_decision(self, board: Board) -> Action:
+        '''
+        This method trigges the minimax algorithm in order to choose
+        the best action on `board`
+        
+        ## Parameters
+        `- board: Board` of current game state
+        `- return: Action` that best fits for Player
+        '''
+        
+        logging.debug(f"Starting minimax_decicion for palyer {self.symbol} at board {board.as_one_line_list()}")
+
+        actions = TicTacToePlayer.actions(board, self.symbol)
+
+        max_action = Action(board, ('-', '-'), -1000)
+
+        for action in actions:
+
+            action.utility = TicTacToePlayer.min_value(action.board, self.symbol)
+
+            if action.utility > max_action.utility:
+                max_action = action
+        
+        logging.debug(f"Best action for player {self.symbol} at board {board.as_one_line_list()} is {max_action}")
+        return max_action

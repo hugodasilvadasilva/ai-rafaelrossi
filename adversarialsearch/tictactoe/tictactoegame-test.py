@@ -6,159 +6,83 @@ import unittest
 import setlog
 from tictactoeplayer import TicTacToePlayer as Player
 from tictactoeboard import TicTacToeBoard as Board
-from tictactoeaction import TicTacToeAction as Action
 from tictactoegame import TicTacToeGame as Game
 
-class Test_Game_terminate(unittest.TestCase):
+class Test_Game_start(unittest.TestCase):
     
-    def test_blank(self):
+    def one_move_lasting(self):
         '''
-        This method checks if method terminated() returns false if board
-        is blank
+        This method checks how Game.start() returns when there is
+        only one move lasting
         '''
-        marks = ['-', '-', '-', '-', '-', '-', '-', '-', '-']
 
-        board = Board(marks)
-        terminated = Game.terminated(board)
+        setlog.set_log(logging.WARNING)
 
-        self.assertEqual(False, terminated)
+        board_list = ['X', '0', 'X', '0', '0', 'X', 'X', '-', '0']
+        game_over_board = Game.start(Board(board_list), Player('0'), Player('X') )
+
+        exp_list = board_list.copy()
+        exp_list[7] = '0'
+
+        self.assertEqual(exp_list, game_over_board.as_one_line_list())
     
-    def test_lasting_one(self):
+    def one_move_to_win(self):
         '''
-        This method checks if Game.terminate() returns false if board
-        last one and no player has won
+        This method checks how Game.start() returns when there is
+        only one move to win
         '''
 
-        marks = ['X', '0', '0', '0', 'X', 'X', '0', 'X', '-']
+        setlog.set_log(logging.WARNING)
 
-        board = Board(marks)
-        terminated = Game.terminated(board)
+        board_list = ['X', '0', 'X', '0', '0', 'X', '-', '-', '0']
+        game_over_board = Game.start(Board(board_list), Player('0'), Player('X') )
 
-        self.assertEqual(False, terminated)
+        exp_list = board_list.copy()
+        exp_list[7] = '0'
+
+        self.assertEqual(exp_list, game_over_board.as_one_line_list())
     
-    def test_first_line_terminated(self):
+    def two_moves_even(self):
         '''
-        This method checks if Game.terminated() method returns true if board
-        is terminated with X on first line
-        '''
-
-        marks = ['X', 'X', 'X', '0', '-', '0', '0', '-', '-']
-
-        board = Board(marks)
-        terminated = Game.terminated(board)
-
-        self.assertEqual(True, terminated)
-
-    def test_second_column_terminated(self):
-        '''
-        This method checks if terminated() method returns true if board
-        is terminated with X on Second  Column
+        This method checks how Game.start() returns when there is
+        only two moves lasting and game will even
         '''
 
-        marks = ['-', 'X', 'X', '0', 'X', '0', '0', 'X', '-']
+        setlog.set_log(logging.WARNING)
 
-        board = Board(marks)
-        terminated = Game.terminated(board)
+        board_list = ['X', '0', 'X', '0', '0', 'X', '-', '-', '0']
+        game_over_board = Game.start(Board(board_list), Player('X'), Player('0') )
 
-        self.assertEqual(True, terminated)
+        exp_list = board_list.copy()
+        exp_list[7] = 'X'
+        exp_list[6] = '0'
 
-    def test_up_down_diag_terminated(self):
+        self.assertEqual(exp_list, game_over_board.as_one_line_list())
+
+    def best_hit(self):
         '''
-        This method checks if terminated() method returns true if board
-        is terminated with X on up-down-diagonal.
-        '''
-
-        marks = ['X', '-', '0', '-', 'X', '0', '-', '0', 'X']
-
-        board = Board(marks)
-        terminated = Game.terminated(board)
-
-        self.assertEqual(True, terminated)
-
-    def test_down_up_diag_terminated(self):
-        '''
-        This method checks if terminated() method returns true if board
-        is terminated with 0 on down-up-diagonal
+        This method checks if Game.start() chooses the best option 
+        so player will always win
         '''
 
-        marks = ['-', 'X', '0', '-', '0', 'X', '0', '-', 'X']
+        setlog.set_log(logging.WARN)
 
-        board = Board(marks)
-        terminated = Game.terminated(board)
+        board_list = ['X', '0', 'X', '0', '-', '-', 'X', '-', '-']
+        game_over = Game.start(Board(board_list), Player('0'), Player('X'))
 
-        self.assertEqual(True, terminated)
+        exp_list = board_list.copy()
+        exp_list[4] = '0'
+        exp_list[5] = 'X'
+        exp_list[7] = '0'
 
-class Test_Game_final_result(unittest.TestCase):
+        self.assertListEqual(exp_list, game_over.as_one_line_list())
+    
+    def test_run(self):
 
-    def test_not_terminated(self):
-        '''
-        This method checks if Game.current_result(board) method 
-        returns (None, None) if board is note terminated'''
-
-        marks = ['-', 'X', '0', 'X', '-', '0', 'X', '0', '-']
-        board = Board(marks)
-        curr_result = Game.current_result(board)
-
-        exp_result = (None, None)
-
-        self.assertTupleEqual(exp_result, curr_result)
-
-    def test_X_cross_col0(self):
-        '''
-        This method checks if Game.current_result(board) method
-        returns (X, col1) if board is crossed by X at column 0
-        '''
-
-        marks = ['X', '-', '0', 'X', '0', '-', 'X', '0', '-']
-        board = Board(marks)
-        curr_result = Game.current_result(board)
-
-        exp_result = ('X', 'col0')
-
-        self.assertTupleEqual(exp_result, curr_result)
-
-    def test_0_cross_row1(self):
-        '''
-        This method checks if Game.current_result(board) method
-        returns (0, row1) if board is crossed by 0 at column 1
-        '''
-
-        marks = ['-', '-', 'X', '0', '0', '0', 'X', '0', 'X']
-        board = Board(marks)
-        curr_result = Game.current_result(board)
-
-        exp_result = ('0', 'row1')
-
-        self.assertTupleEqual(exp_result, curr_result)
-
-    def test_X_cross_up_down_diag(self):
-        '''
-        This method checks if Game.current_result(board) method
-        returns (X, updown) if board is crossed by X up-down-diagonal
-        '''
-
-        marks = ['X', '-', 'X', '-', 'X', '0', '0', '0', 'X']
-        board = Board(marks)
-        curr_result = Game.current_result(board)
-
-        exp_result = ('X', 'updown')
-
-        self.assertTupleEqual(exp_result, curr_result)
-
-    def test_0_cross_down_up_diag(self):
-        '''
-        This method checks if Game.current_result(board) method
-        returns (0, downup) if board is crossed by 0 down-up-diagonal
-        '''
-
-        marks = ['X', '-', '0', '-', '0', 'X', '0', '-', 'X']
-        board = Board(marks)
-        curr_result = Game.current_result(board)
-
-        exp_result = ('0', 'downup')
-
-        self.assertTupleEqual(exp_result, curr_result)
-
+        #self.one_move_lasting()
+        #self.one_move_to_win()
+        #self.two_moves_even()
+        self.best_hit()
 
 if __name__ == "__main__":
     unittest.main()

@@ -9,7 +9,7 @@ from tictactoeboard import TicTacToeBoard as Board
 from tictactoeaction import TicTacToeAction as Action
 from tictactoegame import TicTacToeGame as Game
 
-setlog.set_log(logging.INFO)
+setlog.set_log(logging.DEBUG)
 
 class Test_Player_actions(unittest.TestCase):
 
@@ -253,7 +253,6 @@ class Test_Player_min_value(unittest.TestCase):
         exp_value = 0
 
         self.assertEqual(exp_value, min_value)
-
 
 if __name__ == "__main__":
     unittest.main()
